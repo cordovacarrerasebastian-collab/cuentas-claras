@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Cuentas claras</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@400;600;800&display=swap">
+<style>
+:root{--bg:#f2f4fb;--panel:#fff;--ink:#1b2140;--mute:#656d92;--line:#dde1f0;--acc:#5a3df0;--accink:#fff;--pos:#117a4d;--neg:#c2410c;--soft:#ebe7ff;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#12142a;--panel:#1b1f3d;--ink:#e9ebfb;--mute:#9aa1cc;--line:#2e3361;--acc:#8d7bff;--accink:#120c44;--pos:#4ade9b;--neg:#fb9a6a;--soft:#2a2660}}
+:root[data-theme="dark"]{--bg:#12142a;--panel:#1b1f3d;--ink:#e9ebfb;--mute:#9aa1cc;--line:#2e3361;--acc:#8d7bff;--accink:#120c44;--pos:#4ade9b;--neg:#fb9a6a;--soft:#2a2660}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.5 "Bricolage Grotesque",system-ui,-apple-system,"Segoe UI",sans-serif}
+main{max-width:640px;margin:0 auto;padding:22px 16px 48px}
+h1{font-size:2rem;font-weight:800;margin:0;letter-spacing:-.02em}
+.sub{color:var(--mute);margin:2px 0 18px}
+section{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:16px;margin-bottom:14px}
+h2{font-size:1.05rem;margin:0 0 10px;font-weight:600}
+input,select{width:100%;font:inherit;color:var(--ink);background:transparent;border:1px solid var(--line);border-radius:8px;padding:9px 11px}
+input:focus,select:focus,button:focus-visible{outline:2px solid var(--acc);outline-offset:1px}
+button{font:inherit;cursor:pointer;border-radius:8px;border:1px solid var(--line);background:transparent;color:var(--ink);padding:9px 14px}
+button.main,a.main{background:var(--acc);color:var(--accink);border-color:var(--acc);font-weight:600}
+a.main{display:inline-block;text-decoration:none;border:1px solid var(--acc);border-radius:8px;padding:9px 14px}
+.line{display:flex;gap:8px}
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
+.chip{background:var(--soft);border-radius:999px;padding:3px 6px 3px 12px;display:flex;align-items:center;gap:4px}
+.chip button{border:0;padding:0 6px;color:var(--mute);background:none}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px}
+@media(max-width:480px){.grid{grid-template-columns:1fr}}
+.who{display:flex;flex-wrap:wrap;gap:6px 14px;margin:6px 0 12px}
+.who label{display:flex;align-items:center;gap:6px;font-size:.95rem}
+.who input{width:auto}
+.lbl{font-size:.85rem;color:var(--mute);margin:2px 0 2px}
+.ex{display:flex;justify-content:space-between;gap:10px;padding:9px 0;border-top:1px solid var(--line)}
+.ex small{color:var(--mute);display:block}
+.ex .r{text-align:right;white-space:nowrap}
+.ex button{border:0;color:var(--mute);padding:0 4px}
+.empty{color:var(--mute);margin:0}
+.bal{display:flex;justify-content:space-between;padding:5px 0}
+.pos{color:var(--pos);font-weight:600}.neg{color:var(--neg);font-weight:600}
+.pay{background:var(--soft);border-radius:10px;padding:10px 12px;margin-bottom:8px;display:flex;justify-content:space-between;gap:10px}
+.pay b{white-space:nowrap}
+.tot{font-size:1.5rem;font-weight:800}
+[hidden]{display:none!important}
+.welcome{background:var(--soft);border-color:transparent}
+.welcome ol{margin:0 0 12px;padding-left:20px}
+.welcome li{margin-bottom:4px}
+.tools{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:14px}
+.tools select{width:auto}
+.tools button{border:0;color:var(--acc);padding:4px 0;text-decoration:underline}
+.ex .acts{display:inline-flex;gap:2px}
+.err{color:var(--neg);min-height:1.4em;margin:6px 0 0;font-size:.9rem}
+</style>
+</head>
+<body>
+<main>
+ <h1>Cuentas claras</h1>
+ <p class="sub">Cargá quién puso plata y cuánto, y te decimos quién le paga a quién.</p>
+
+ <section class="welcome" id="welcome" hidden>
+  <h2>Cómo se usa</h2>
+  <ol>
+   <li>Agregá a todas las personas del grupo.</li>
+   <li>Cargá cada gasto: qué fue, cuánto, quién pagó y entre quiénes se divide.</li>
+   <li>Mirá abajo quién le paga a quién para quedar a mano.</li>
+   <li>Tocá <b>Compartir con el grupo</b> y mandá el link: todos podrán ver y cargar gastos desde su celular.</li>
+  </ol>
+  <button class="main" id="wok">Entendido</button>
+ </section>
+ <div class="tools">
+  <label class="lbl" style="margin:0">Moneda <select id="cur" aria-label="Moneda"><option value="ARS">Pesos ($)</option><option value="USD">Dólares (US$)</option><option value="EUR">Euros (€)</option></select></label>
+  <button id="whelp">¿Cómo se usa?</button>
+ </div>
+
+ <section>
+  <h2>¿Quiénes son?</h2>
+  <div class="line"><input id="pn" placeholder="Nombre" aria-label="Nombre"><button class="main" id="padd">Agregar</button></div>
+  <div class="chips" id="chips"></div>
+ </section>
+
+ <section>
+  <h2>Nuevo gasto</h2>
+  <div class="grid">
+   <div><div class="lbl">Qué fue</div><input id="gd" placeholder="Ej: Asado"></div>
+   <div><div class="lbl">Monto</div><input id="ga" type="number" inputmode="decimal" min="0" placeholder="0"></div>
+  </div>
+  <div class="lbl">Quién pagó</div>
+  <select id="gp"></select>
+  <div class="lbl" style="margin-top:10px">Entre quiénes se divide</div>
+  <div class="who" id="gw"></div>
+  <div class="line"><button class="main" id="gadd">Agregar gasto</button><button id="gcancel" hidden>Cancelar</button></div>
+  <p class="err" id="err" role="alert"></p>
+ </section>
+
+ <section>
+  <h2>Gastos</h2>
+  <div id="exs"></div>
+ </section>
+
+ <section>
+  <h2>Resultado</h2>
+  <div id="res"></div>
+  <p class="err" id="st" style="color:var(--mute)"></p>
+  <div class="line" style="margin-top:12px;flex-wrap:wrap">
+   <button class="main" id="copy">Copiar resumen</button>
+   <a class="main" id="wa" href="#" target="_blank" rel="noopener">Enviar por WhatsApp</a>
+   <button id="share">Compartir con el grupo</button>
+   <button id="clear">Borrar todo</button>
+  </div>
+ </section>
+</main>
+<script type="module">
+import {apply,empty} from "/reducer.mjs";
+const $=id=>document.getElementById(id);
+const KEY="cuentas-claras-v2";
+const gid=new URLSearchParams(location.search).get("g");
+let S=empty();
+if(!gid){try{const s=JSON.parse(localStorage.getItem(KEY)||"null");if(s&&s.people)S=s}catch(e){}}
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const m=n=>new Intl.NumberFormat("es-AR",{style:"currency",currency:S.cur||"ARS",maximumFractionDigits:2}).format(n);
+const name=id=>(S.people.find(p=>p.id===id)||{n:"?"}).n;
+let summary="";
+
+// Ejecuta una operación: en el servidor si hay grupo, o en el navegador si no. Devuelve null o el mensaje de error.
+async function act(op){
+ if(!gid){try{S=apply(S,op);draw();return null}catch(e){return e.message}}
+ try{
+  const r=await fetch("/api/g/"+gid,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(op)});
+  const j=await r.json();
+  if(!r.ok)return j.error||"Error";
+  S=j;draw();return null;
+ }catch(e){return "No hay conexión. Probá de nuevo."}
+}
+async function poll(){
+ if(!gid||document.hidden)return;
+ try{const r=await fetch("/api/g/"+gid,{cache:"no-store"});if(!r.ok)return;const j=await r.json();if(j.rev!==S.rev){S=j;draw()}}catch(e){}
+}
+
+function calc(){
+ const bal={};S.people.forEach(p=>bal[p.id]=0);
+ let total=0;
+ S.exp.forEach(e=>{
+  total+=e.a;bal[e.p]=(bal[e.p]||0)+e.a;
+  const sh=e.w.length?e.a/e.w.length:0;
+  e.w.forEach(id=>bal[id]=(bal[id]||0)-sh);
+ });
+ const cr=[],de=[];
+ Object.keys(bal).forEach(k=>{const v=Math.round(bal[k]*100)/100;if(v>0.009)cr.push({id:+k,v});else if(v<-0.009)de.push({id:+k,v:-v})});
+ cr.sort((a,b)=>b.v-a.v);de.sort((a,b)=>b.v-a.v);
+ const pays=[];let i=0,j=0;
+ while(i<de.length&&j<cr.length){
+  const x=Math.min(de[i].v,cr[j].v);
+  if(x>0.009)pays.push({f:de[i].id,t:cr[j].id,v:x});
+  de[i].v-=x;cr[j].v-=x;
+  if(de[i].v<0.01)i++;if(cr[j].v<0.01)j++;
+ }
+ return{bal,total,pays};
+}
+
+function draw(){
+ $("chips").innerHTML=S.people.length?S.people.map(p=>`<span class="chip">${esc(p.n)}<button data-rp="${p.id}" aria-label="Quitar a ${esc(p.n)}">✕</button></span>`).join(""):'<p class="empty">Agregá al menos dos personas.</p>';
+ const opts=S.people.map(p=>`<option value="${p.id}">${esc(p.n)}</option>`).join("");
+ const cur=$("gp").value;$("gp").innerHTML=opts;if(cur)$("gp").value=cur;
+ const chk=[...document.querySelectorAll("#gw input")].reduce((o,c)=>(o[c.value]=c.checked,o),{});
+ $("gw").innerHTML=S.people.map(p=>`<label><input type="checkbox" value="${p.id}" ${chk[p.id]===false?"":"checked"}>${esc(p.n)}</label>`).join("");
+ $("cur").value=S.cur||"ARS";
+ $("exs").innerHTML=S.exp.length?S.exp.map(e=>`<div class="ex"><div>${esc(e.d)}<small>Pagó ${esc(name(e.p))} · entre ${e.w.length}</small></div><div class="r">${m(e.a)} <span class="acts"><button data-ee="${e.id}" aria-label="Editar gasto">✎</button><button data-re="${e.id}" aria-label="Quitar gasto">✕</button></span></div></div>`).join(""):'<p class="empty">Todavía no hay gastos.</p>';
+ const r=calc();
+ let h=`<div class="tot">${m(r.total)}</div><div class="lbl" style="margin-bottom:12px">Total gastado</div>`;
+ if(r.pays.length){h+=r.pays.map(p=>`<div class="pay"><span>${esc(name(p.f))} le paga a ${esc(name(p.t))}</span><b>${m(p.v)}</b></div>`).join("")}
+ else{h+=S.exp.length?'<p class="empty">Están a mano, nadie debe nada.</p>':'<p class="empty">Cuando cargues gastos, acá aparece quién paga a quién.</p>'}
+ if(S.exp.length){
+  h+='<div class="lbl" style="margin-top:14px">Balance de cada uno</div>'+S.people.map(p=>{const v=Math.round((r.bal[p.id]||0)*100)/100;return `<div class="bal"><span>${esc(p.n)}</span><span class="${v>0?"pos":v<0?"neg":""}">${v>0?"recibe ":v<0?"debe ":""}${m(Math.abs(v))}</span></div>`}).join("");
+ }
+ $("res").innerHTML=h;
+ summary="Cuentas claras\nTotal: "+m(r.total)+"\n"+(r.pays.length?r.pays.map(p=>`• ${name(p.f)} le paga a ${name(p.t)}: ${m(p.v)}`).join("\n"):"Están a mano.");
+ if(gid)summary+="\nGrupo: "+location.href;
+ $("wa").href="https://wa.me/?text="+encodeURIComponent(summary);
+ $("share").textContent=gid?"Copiar link del grupo":"Compartir con el grupo";
+ $("st").textContent=gid?"Grupo compartido: todos los que tengan el link pueden ver y cargar gastos.":"";
+ if(!gid){try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}}
+}
+
+async function addPerson(){
+ const n=$("pn").value.trim();if(!n)return;
+ const e=await act({t:"addPerson",n});
+ if(e)$("err").textContent=e;else{$("pn").value="";$("err").textContent=""}
+}
+$("padd").onclick=addPerson;
+$("pn").addEventListener("keydown",e=>{if(e.key==="Enter")addPerson()});
+let editing=null;
+function endEdit(){editing=null;$("gd").value="";$("ga").value="";$("gadd").textContent="Agregar gasto";$("gcancel").hidden=true}
+$("gadd").onclick=async()=>{
+ const w=[...document.querySelectorAll("#gw input:checked")].map(c=>+c.value);
+ const f={d:$("gd").value,a:$("ga").value,p:$("gp").value,w};
+ const e=await act(editing?{t:"editExpense",id:editing,...f}:{t:"addExpense",...f});
+ $("err").textContent=e||"";
+ if(!e)endEdit();
+};
+$("gcancel").onclick=()=>{endEdit();$("err").textContent=""};
+function startEdit(id){
+ const x=S.exp.find(e=>e.id===id);if(!x)return;
+ editing=id;$("gd").value=x.d;$("ga").value=x.a;$("gp").value=String(x.p);
+ document.querySelectorAll("#gw input").forEach(c=>c.checked=x.w.includes(+c.value));
+ $("gadd").textContent="Guardar cambios";$("gcancel").hidden=false;$("err").textContent="";
+ $("gd").scrollIntoView({behavior:"smooth",block:"center"});$("gd").focus();
+}
+$("cur").onchange=async()=>{$("err").textContent=await act({t:"setCurrency",c:$("cur").value})||""};
+const WK="cuentas-claras-bienvenida";
+try{if(!localStorage.getItem(WK))$("welcome").hidden=false}catch(e){$("welcome").hidden=false}
+$("wok").onclick=()=>{$("welcome").hidden=true;try{localStorage.setItem(WK,"1")}catch(e){}};
+$("whelp").onclick=()=>{$("welcome").hidden=false;$("welcome").scrollIntoView({behavior:"smooth"})};
+document.addEventListener("click",async e=>{
+ const d=e.target.dataset;
+ if(d.rp)$("err").textContent=await act({t:"removePerson",id:d.rp})||"";
+ if(d.re){if(editing===+d.re)endEdit();$("err").textContent=await act({t:"removeExpense",id:d.re})||""}
+ if(d.ee)startEdit(+d.ee);
+});
+$("copy").onclick=async()=>{
+ try{await navigator.clipboard.writeText(summary);$("copy").textContent="Copiado"}
+ catch(e){$("copy").textContent="Usá WhatsApp"}
+ setTimeout(()=>$("copy").textContent="Copiar resumen",1800);
+};
+$("share").onclick=async()=>{
+ if(gid){
+  try{await navigator.clipboard.writeText(location.href);$("share").textContent="Link copiado"}catch(e){$("share").textContent="Copiá el link de la barra"}
+  setTimeout(()=>$("share").textContent="Copiar link del grupo",1800);return;
+ }
+ const al="abcdefghjkmnpqrstuvwxyz23456789";
+ const id=Array.from(crypto.getRandomValues(new Uint8Array(8)),b=>al[b%al.length]).join("");
+ try{
+  const r=await fetch("/api/g/"+id,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({t:"init",state:S})});
+  if(!r.ok){$("err").textContent=(await r.json()).error||"No se pudo crear el grupo";return}
+  try{localStorage.removeItem(KEY)}catch(e){}
+  location.href="?g="+id;
+ }catch(e){$("err").textContent="No se pudo crear el grupo. Revisá tu conexión."}
+};
+$("clear").onclick=()=>act({t:"reset"});
+draw();
+if(gid){setInterval(poll,5000);document.addEventListener("visibilitychange",poll)}
+</script>
+</body>
+</html>
