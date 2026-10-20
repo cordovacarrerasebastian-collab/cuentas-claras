@@ -1,10 +1,12 @@
 // Lógica compartida: la usan el navegador (modo local) y el servidor (modo grupo).
-export const empty = () => ({ people: [], exp: [], next: 1, rev: 0 });
+const CURS = ["ARS", "USD", "EUR"];
+export const empty = () => ({ people: [], exp: [], next: 1, rev: 0, cur: "ARS" });
 const clean = (s, n = 40) => String(s ?? "").trim().slice(0, n);
 const MAX_PEOPLE = 30, MAX_EXP = 500;
 
 function sanitize(st) {
   const out = empty();
+  if (CURS.includes(st?.cur)) out.cur = st.cur;
   for (const p of (st?.people || []).slice(0, MAX_PEOPLE)) {
     const n = clean(p.n); if (!n) continue;
     const id = out.next++; out.people.push({ id, n }); p._new = id;
@@ -47,10 +49,23 @@ export function apply(S, op) {
       if (S.exp.length >= MAX_EXP) throw new Error("Máximo 500 gastos");
       S.exp.push({ id: S.next++, d: clean(op.d, 60) || "Gasto", a, p, w }); break;
     }
+    case "editExpense": {
+      const i = S.exp.findIndex(e => e.id === Number(op.id));
+      if (i < 0) throw new Error("Ese gasto ya no existe");
+      const a = Math.round(Number(op.a) * 100) / 100, p = Number(op.p);
+      const w = [...new Set((op.w || []).map(Number))].filter(has);
+      if (!(a > 0 && a < 1e12)) throw new Error("Ingresá un monto mayor a cero");
+      if (!has(p)) throw new Error("Elegí quién pagó");
+      if (!w.length) throw new Error("Elegí entre quiénes se divide");
+      S.exp[i] = { id: S.exp[i].id, d: clean(op.d, 60) || "Gasto", a, p, w }; break;
+    }
+    case "setCurrency":
+      if (!CURS.includes(op.c)) throw new Error("Moneda inválida");
+      S.cur = op.c; break;
     case "removeExpense":
       S.exp = S.exp.filter(e => e.id !== Number(op.id)); break;
     case "reset":
-      S = empty(); S.rev = 1; break;
+      { const c = S.cur; S = empty(); S.cur = c || "ARS"; S.rev = 1; } break;
     default: throw new Error("Operación inválida");
   }
   S.rev = (S.rev || 0) + 1;

@@ -43,6 +43,14 @@ a.main{display:inline-block;text-decoration:none;border:1px solid var(--acc);bor
 .pay{background:var(--soft);border-radius:10px;padding:10px 12px;margin-bottom:8px;display:flex;justify-content:space-between;gap:10px}
 .pay b{white-space:nowrap}
 .tot{font-size:1.5rem;font-weight:800}
+[hidden]{display:none!important}
+.welcome{background:var(--soft);border-color:transparent}
+.welcome ol{margin:0 0 12px;padding-left:20px}
+.welcome li{margin-bottom:4px}
+.tools{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:14px}
+.tools select{width:auto}
+.tools button{border:0;color:var(--acc);padding:4px 0;text-decoration:underline}
+.ex .acts{display:inline-flex;gap:2px}
 .err{color:var(--neg);min-height:1.4em;margin:6px 0 0;font-size:.9rem}
 </style>
 </head>
@@ -50,6 +58,21 @@ a.main{display:inline-block;text-decoration:none;border:1px solid var(--acc);bor
 <main>
  <h1>Cuentas claras</h1>
  <p class="sub">Cargá quién puso plata y cuánto, y te decimos quién le paga a quién.</p>
+
+ <section class="welcome" id="welcome" hidden>
+  <h2>Cómo se usa</h2>
+  <ol>
+   <li>Agregá a todas las personas del grupo.</li>
+   <li>Cargá cada gasto: qué fue, cuánto, quién pagó y entre quiénes se divide.</li>
+   <li>Mirá abajo quién le paga a quién para quedar a mano.</li>
+   <li>Tocá <b>Compartir con el grupo</b> y mandá el link: todos podrán ver y cargar gastos desde su celular.</li>
+  </ol>
+  <button class="main" id="wok">Entendido</button>
+ </section>
+ <div class="tools">
+  <label class="lbl" style="margin:0">Moneda <select id="cur" aria-label="Moneda"><option value="ARS">Pesos ($)</option><option value="USD">Dólares (US$)</option><option value="EUR">Euros (€)</option></select></label>
+  <button id="whelp">¿Cómo se usa?</button>
+ </div>
 
  <section>
   <h2>¿Quiénes son?</h2>
@@ -67,7 +90,7 @@ a.main{display:inline-block;text-decoration:none;border:1px solid var(--acc);bor
   <select id="gp"></select>
   <div class="lbl" style="margin-top:10px">Entre quiénes se divide</div>
   <div class="who" id="gw"></div>
-  <button class="main" id="gadd">Agregar gasto</button>
+  <div class="line"><button class="main" id="gadd">Agregar gasto</button><button id="gcancel" hidden>Cancelar</button></div>
   <p class="err" id="err" role="alert"></p>
  </section>
 
@@ -96,7 +119,7 @@ const gid=new URLSearchParams(location.search).get("g");
 let S=empty();
 if(!gid){try{const s=JSON.parse(localStorage.getItem(KEY)||"null");if(s&&s.people)S=s}catch(e){}}
 const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
-const m=n=>new Intl.NumberFormat("es-AR",{style:"currency",currency:"ARS",maximumFractionDigits:2}).format(n);
+const m=n=>new Intl.NumberFormat("es-AR",{style:"currency",currency:S.cur||"ARS",maximumFractionDigits:2}).format(n);
 const name=id=>(S.people.find(p=>p.id===id)||{n:"?"}).n;
 let summary="";
 
@@ -142,7 +165,8 @@ function draw(){
  const cur=$("gp").value;$("gp").innerHTML=opts;if(cur)$("gp").value=cur;
  const chk=[...document.querySelectorAll("#gw input")].reduce((o,c)=>(o[c.value]=c.checked,o),{});
  $("gw").innerHTML=S.people.map(p=>`<label><input type="checkbox" value="${p.id}" ${chk[p.id]===false?"":"checked"}>${esc(p.n)}</label>`).join("");
- $("exs").innerHTML=S.exp.length?S.exp.map(e=>`<div class="ex"><div>${esc(e.d)}<small>Pagó ${esc(name(e.p))} · entre ${e.w.length}</small></div><div class="r">${m(e.a)} <button data-re="${e.id}" aria-label="Quitar gasto">✕</button></div></div>`).join(""):'<p class="empty">Todavía no hay gastos.</p>';
+ $("cur").value=S.cur||"ARS";
+ $("exs").innerHTML=S.exp.length?S.exp.map(e=>`<div class="ex"><div>${esc(e.d)}<small>Pagó ${esc(name(e.p))} · entre ${e.w.length}</small></div><div class="r">${m(e.a)} <span class="acts"><button data-ee="${e.id}" aria-label="Editar gasto">✎</button><button data-re="${e.id}" aria-label="Quitar gasto">✕</button></span></div></div>`).join(""):'<p class="empty">Todavía no hay gastos.</p>';
  const r=calc();
  let h=`<div class="tot">${m(r.total)}</div><div class="lbl" style="margin-bottom:12px">Total gastado</div>`;
  if(r.pays.length){h+=r.pays.map(p=>`<div class="pay"><span>${esc(name(p.f))} le paga a ${esc(name(p.t))}</span><b>${m(p.v)}</b></div>`).join("")}
@@ -166,16 +190,33 @@ async function addPerson(){
 }
 $("padd").onclick=addPerson;
 $("pn").addEventListener("keydown",e=>{if(e.key==="Enter")addPerson()});
+let editing=null;
+function endEdit(){editing=null;$("gd").value="";$("ga").value="";$("gadd").textContent="Agregar gasto";$("gcancel").hidden=true}
 $("gadd").onclick=async()=>{
  const w=[...document.querySelectorAll("#gw input:checked")].map(c=>+c.value);
- const e=await act({t:"addExpense",d:$("gd").value,a:$("ga").value,p:$("gp").value,w});
+ const f={d:$("gd").value,a:$("ga").value,p:$("gp").value,w};
+ const e=await act(editing?{t:"editExpense",id:editing,...f}:{t:"addExpense",...f});
  $("err").textContent=e||"";
- if(!e){$("gd").value="";$("ga").value=""}
+ if(!e)endEdit();
 };
+$("gcancel").onclick=()=>{endEdit();$("err").textContent=""};
+function startEdit(id){
+ const x=S.exp.find(e=>e.id===id);if(!x)return;
+ editing=id;$("gd").value=x.d;$("ga").value=x.a;$("gp").value=String(x.p);
+ document.querySelectorAll("#gw input").forEach(c=>c.checked=x.w.includes(+c.value));
+ $("gadd").textContent="Guardar cambios";$("gcancel").hidden=false;$("err").textContent="";
+ $("gd").scrollIntoView({behavior:"smooth",block:"center"});$("gd").focus();
+}
+$("cur").onchange=async()=>{$("err").textContent=await act({t:"setCurrency",c:$("cur").value})||""};
+const WK="cuentas-claras-bienvenida";
+try{if(!localStorage.getItem(WK))$("welcome").hidden=false}catch(e){$("welcome").hidden=false}
+$("wok").onclick=()=>{$("welcome").hidden=true;try{localStorage.setItem(WK,"1")}catch(e){}};
+$("whelp").onclick=()=>{$("welcome").hidden=false;$("welcome").scrollIntoView({behavior:"smooth"})};
 document.addEventListener("click",async e=>{
  const d=e.target.dataset;
  if(d.rp)$("err").textContent=await act({t:"removePerson",id:d.rp})||"";
- if(d.re)$("err").textContent=await act({t:"removeExpense",id:d.re})||"";
+ if(d.re){if(editing===+d.re)endEdit();$("err").textContent=await act({t:"removeExpense",id:d.re})||""}
+ if(d.ee)startEdit(+d.ee);
 });
 $("copy").onclick=async()=>{
  try{await navigator.clipboard.writeText(summary);$("copy").textContent="Copiado"}
